@@ -194,4 +194,28 @@ git count-objects # 分析 Git 資料庫狀況，計算鬆散的物件
 git gc # 維護 Git 資料庫，重組物件
 git fsck --full # 應該是類似 Git 磁碟重組之類的東西
 
+====================================================
+git & ssh
+====================================================
+$ git config --global user.name "Your Name"
+$ git config --global user.email gt4call@gmail.com
+$ git config --list
+
+gen an sshkey
+$ ssh-keygen -t rsa -C "gt4call@gmail.com"
+
+copy ras.put to clip
+$ sudo apt-get install xclip
+$ cat ~/.ssh/id_rsa.pub | xclip -sel clip
+
+an method of check ssh
+$ ssh git@github.com
+PTY allocation request failed on channel 0
+ERROR: Hi gt4call! You've successfully authenticated, but GitHub does not provide shell access
+              Connection to github.com closed.
+
+push local repo to remotes
+$ git remote add origin git@github.com:gt4call/memo.git
+$ git push origin master
+
 

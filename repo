@@ -1,0 +1,22 @@
+repo常用命令
+
+1.repo init -u url -b revision
+解释
+	初始化一个git的client，并指定到一个git的url
+
+参数
+-u url : 指定git的url地址
+-b revision ： 指定revision
+
+2.repo sync
+解释
+	从repo同步到client（repo：远程git仓库）
+
+3.repo diff
+解释
+	比较修改后的文件和
+
+4.repo status
+解释
+	查看当前的文件修改情况
+

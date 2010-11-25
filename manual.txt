@@ -1,0 +1,38 @@
+﻿
+========================================
+== Apache Access config
+========================================
+$ sudo vi /etc/httpd/conf/httpd.conf
+...
+Deny From all
+Allow From 192.168.0.7
+#Allow From all
+#Deny From 192.168.0
+...
+
+restart apache
+$ sudo service httpd restart
+
+========================================
+== mysql password
+========================================
+658b 27d9 ab36 3eaa b080 ea65 da35 ceed 2190 8fe5
+somethingNEW123
+
+
+========================================
+== google dns server
+========================================
+$ sudo vi /etc/resolv.conf
+...
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+...
+
+
+========================================
+== cat & line number
+========================================
+$ cat -n xxx
+
+

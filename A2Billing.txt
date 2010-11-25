@@ -1,0 +1,259 @@
+﻿========================================
+== A2Billing INSTALLATION GUIDE
+========================================
+This document focuses on the installation of a2billing system for the Asterisk open source PBX. The document covers the installation and basic configuration of a2billing. A2billing is an open source implementation of a telecommunication billing and added value services platform.A2billing is a LAMP (Linux Apache Mysql(Postgresql) PHP) application that interfaces with Asterisk using both the AMI and AGI interfaces.This documentation has been tested using Debian etch, Debian etch and half, Ubuntu 8.04 and Ubuntu 8.10 and a2billing.
+
+========================================
+== INDEX
+== 
+== A2Billing INSTALLATION GUIDE
+== 1.1 Important note about distributions
+== 1.2 Default passwords and access info (READ THIS!)
+== 1.3 Linux Requirements and a2billing
+== 1.4 Pre-required software packages
+== 
+== 
+== Installation
+== 2.1　Step　1: Download and unpack source code
+== 2.2　Step 2: Prepare the Database
+== 2.3　Step 3: Edit the a2billing.conf configuration file
+== 2.4　Step 4: Fix permissions, files and folders SIP and IAX Sound files Configure Asterisk Manager
+== 2.5　Step 5: Install The AGI components
+== 2.6　Step 6: Install web-based Graphical interfaces
+== 2.7　Step 7: Create a dialplan for a2billing
+== 2.8　Step 8: Configure recurring services
+== 2.9　Step 9: Call back daemon (only for Call backs)
+== 
+========================================
+
+
+========================================
+== 1.1 
+== 
+== Important note about distributions
+========================================
+This documentation assumes that you are using a .deb based distro that has used the folder /usr/share/asterisk during packaging. Other distributions use the alternate folder /var/lib/asterisk. If you compile from source the path by default is /var/lib/asterisk.
+
+The basic assumptions of this documentation is that used pre-packaged software and:
+
+1):your apache2 default root folder is /var/www
+2):your asterisk sounds are under /usr/share/asterisk
+3):your asterisk AGI folder is expected under /usr/share/asterisk
+4):your apache2 runs as www-data (uid)
+5):you asterisk runs as asterisk (uid)
+6):those using subversion to check out the code, can use symbolic links instead of copying the files to the right directories
+
+
+========================================
+== 1.2 
+== 
+== Default passwords and access info (READ THIS!)
+========================================
+These are the default passwords that you should know about
+
+1)mysql root password (in a newly installed distro it is normally <ENTER> :-) )
+2)a2billing default database is mya2billing, user is a2billinguser and password is a2billing
+3)asterisk manager default information is: [myasterisk] and secret=mycode
+4)a2billing admin default password is: user=root password=changepassword
+
+
+========================================
+== 1.3
+== 
+== Linux Requirements and a2billing
+========================================
+A2Billing includes the following third party software in the software bundle. Let us be thankful!
+
+1)phpagi 2.14 Copyright 2003, 2004, 2005 Matthew Asham and David Eder
+2)smarty 2.6.22 Copyright 2001-2005 New Digital Group, Inc
+3)jgraph 1.27 Copyright 2001, 2002, 2003, 2004 Johan Persson Aditus Consulting
+4)adodb 4.991 Copyright (c) 2000, 2001, 2002, 2003, 2004 John Lim
+5)famfamfam.com Icons from Mark James
+6)phpconfig (C) 2003 Dave Packham and Rob Birkinshaw
+7)PHP Quick Profiler : http://particletree.com/features/php-quick-profiler/
+8)PHPMailer V5.0.0 Copyright © 1999-2009, Worx International Inc : http://phpmailer.codeworxtech.com/
+9)phpSysInfo 2.5.3 - http://phpsysinfo.sourceforge.net/
+
+
+========================================
+== 1.4
+== 
+== Pre-required software packages
+========================================
+A2billing requires the packages of a LAMP (PHP5) installation. To install the necessary packages, run the following commands:
+ # apt-get install libapache2-mod-php5 php5 php5-common 
+ # apt-get install php5-cli php5-mysql mysql-server apache2 php5-gd 	
+ # apt-get install openssh-server subversion
+
+A2Billing also requires MCrypt module for PHP5
+ # apt-get install php5-mcrypt
+
+Asterisk is of course also needed.
+ # apt-get install asterisk 
+
+ 
+========================================
+== 2.1
+== 
+== Step　1: Download and unpack source code
+== ** All tags is in "http://svn.a2billing.net/svn/asterisk2billing/tags"
+========================================
+# mkdir /usr/local/src/a2billing
+# svn co --username guest --password guest http://svn.a2billing.net/svn/asterisk2billing/tags/1.8.1/ /usr/local/src/a2billing/
+# ls /usr/local/src/a2billing/
+
+========================================
+== 2.2
+== 
+== Step 2: Prepare the Database
+========================================
+We will now create a MySQL database (mya2billing) for the billing software. The file a2billing-createdb-user.sql includes a script that creates the database with the correct access control users and permissions.
+
+#cd /usr/local/src/a2billing
+#mysql -u root -p < DataBase/mysql/Mysql-5.x/a2billing-createdb-user.sql
+Database name is: mya2billing
+Database user is: a2billinguser
+User password is: a2billing
+#mysql -u root -p mya2billing < DataBase/mysql/Mysql-5.x/a2billing-schema-v1.7.0.sql
+
+#mysql -u root -p mya2billing
+mysql>show tables
+mysql>exit
+
+========================================
+== 2.3
+== 
+== Step 3: Edit the a2billing.conf configuration file
+========================================
+The A2Billing configuration file (a2billing.conf) contains the basic information to connect to the a2billing database. Copy or make a symbolic link from /usr/local/src/a2billing/a2billing.conf to /etc/a2billing.conf
+
+# cp /usr/local/src/a2billing/a2billing.conf /etc/
+or
+# ln -s /usr/local/src/asterisk2billing/a2billing.conf /etc/a2billing.conf
+
+# vi /etc/a2billing.conf
+[database]
+hostname = localhost
+port = 3306
+user = a2billinguser
+password = a2billing
+dbname = mya2billing
+dbtype = mysql
+
+========================================
+== 2.4
+== 
+== Step 4: Fix permissions, files and folders SIP and IAX Sound files Configure Asterisk Manager
+========================================
+In this step, we will tweak the file permissions of Asterisk to fit the A2Billing software. We will also create a number of additional files and folders that A2Billing needs, which does not come with the default installation.
+
+2.4.1 SIP and IAX
+First we will set a few file permissions (chmod, chown) and create (touch) the SIP and IAX configuration files for Asterisk.
+# chmod 777 /etc/asterisk
+# touch /etc/asterisk/additional_a2billing_iax.conf
+# touch /etc/asterisk/additional_a2billing_sip.conf
+# echo \#include additional_a2billing_sip.conf >> /etc/asterisk/sip.conf
+# echo \#include additional_a2billing_iax.conf >> /etc/asterisk/iax.conf
+# chown -Rf gtcall /etc/asterisk/additional_a2billing_iax.conf
+# chown -Rf gtcall /etc/asterisk/additional_a2billing_sip.conf
+
+2.4.2 Sound files(TODO)
+Run the sounds installation script available in the addons folder (IMPORTANT: the script assumes that asterisk sounds are under /usr/share/asterisk/sounds/)
+# /usr/local/src/a2billing/addons/sound/install_a2b_sounds_deb.sh
+# chown -R asterisk:asterisk /usr/share/asterisk/sounds/
+
+2.4.3 Configure Asterisk Manager
+Configure the Asterisk Manager by editing the manager.conf file.
+**Notice that we are using the default values (myasterisk, mycode) in this section. The configuration should look like this
+#vi /etc/asterisk/manager.conf
+...
+[general]
+enabled = yes
+port = 5038
+bindaddr = 0.0.0.0
+...
+[myasterisk]
+secret=mycode
+read=system,call,log,verbose,command,agent,user
+write=system,call,log,verbose,command,agent,user
+...
+
+========================================
+== 2.5
+== 
+== Step 5: Install The AGI components
+========================================
+Copy or create a symbolic link of the entire content of the AGI directory into asterisk agi-bin directory.
+
+2.5.1
+# mkdir -p /usr/share/asterisk/agi-bin
+# chown asterisk:asterisk /usr/share/asterisk/agi-bin
+
+2.5.2
+# cd /usr/local/src/a2billing/AGI               
+# cp a2billing.php /usr/share/asterisk/agi-bin/
+# cp -Rf lib /usr/share/asterisk/agi-bin/
+or
+# ln -s /usr/local/src/a2billing/AGI/a2billing.php /usr/share/asterisk/agi-bin/a2billing.php
+# ln -s /usr/local/src/a2billing/AGI/lib /usr/share/asterisk/agi-bin/lib
+
+2.5.3
+# chmod +x /usr/share/asterisk/agi-bin/a2billing.php
+
+========================================
+== 2.6
+== 
+== Step 6: Install web-based Graphical interfaces
+========================================
+In this step, we will install the three graphical interfaces of A2Billing: the Administration (admin), Agent (agent) and Customer (customer) interface. As in previous steps you can copy the folders of make symbolic links.
+
+2.6.1 Place the directories "admin" and "customer" into your webserver document root.
+Create a2billing folder in your web root folder
+# mkdir /var/www/a2billing
+# chown www-data:www-data /var/www/a2billing
+
+2.6.2
+# cp -rf /usr/local/src/a2billing/admin /var/www/a2billing
+# cp -rf /usr/local/src/a2billing/agent /var/www/a2billing
+# cp -rf /usr/local/src/a2billing/customer /var/www/a2billing
+# cp -rf /usr/local/src/a2billing/common /var/www/a2billing
+OR
+# ln -s /usr/local/src/a2billing/admin /var/www/a2billing/admin
+# ln -s /usr/local/src/a2billing/agent /var/www/a2billing/agent
+# ln -s /usr/local/src/a2billing/customer /var/www/a2billing/customer
+# ln -s /usr/local/src/a2billing/common /var/www/a2billing/common
+
+2.6.3
+Fix the permissions of the templates_c folder in each of the UI
+# chmod 755 /usr/local/src/a2billing/admin/templates_c
+# chmod 755 /usr/local/src/a2billing/customer/templates_c
+# chmod 755 /usr/local/src/a2billing/agent/templates_c
+# chown -Rf www-data:www-data /usr/local/src/a2billing/admin/templates_c
+# chown -Rf www-data:www-data /usr/local/src/a2billing/customer/templates_c
+# chown -Rf www-data:www-data /usr/local/src/a2billing/agent/templates_c
+
+Checkpoint 2: Direct a browser to the administrative web interface (http://<ip-addr>/a2billing/admin) and login as administrator. Default passwords are:
+user: root 
+pass: changepassword
+
+
+========================================
+== 2.7
+== 
+== Step 7: Create a dialplan for a2billing
+========================================
+
+
+========================================
+== 2.8
+== 
+== Step 8: Configure recurring services
+========================================
+
+
+========================================
+== 2.9
+== 
+== 2.9　Step 9: Call back daemon (only for Call backs)
+========================================
+

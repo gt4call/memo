@@ -1,0 +1,197 @@
+git常用命令
+
+1.git init命令用于初始化当前所在目录的这个项目，shell返回的提示表明已经建立了一个.git隐藏目录来保存这个项目目前的进展信息。我们可以用ls -a看到它
+$ git init
+
+2.git add 用于从workingTree到index file的修改或者添加的提交
+修改文件或者是添加文件都使用add命令
+$ git add .
+
+3.git commit用于从index file到repo的修改的提交
+$ git commit
+
+4.git diff用于比较文件
+	1)比较working tree和index file
+	$ git diff
+
+	2)比较index file和repo
+	$ git diff -cached
+
+	3)比较working tree和repo
+	$ git diff HRAD
+
+	4)比较working tree和index file
+	$ git diff -- filename
+
+5.查看git修改status
+$ git status
+
+6.查看commit log信息
+$ git log
+
+7.有关branch
+	1).查看branch(-a查看全部branch)
+	$ git branch -a
+
+	2).添加branch
+	$ git branch branchname
+
+	3).删除branch(-d使用在merge branch后，-D使用在强制删除branch)
+	$ git branch -d branchname
+	$ git branch -D branchname
+
+
+8.checkout
+	切换branch
+	$ git checkout branchname
+
+	切换到master
+	$ git checkout master
+
+	从remotes取得某个版本到workingTree，
+	$ git checkout giturl localbranchname
+
+	从remotes恢复文件
+	$ git checkout -- filename
+
+9.merge branch到master
+$ git merge branchname
+
+10.从remotes获取git数据
+$ git clone giturl localpath
+
+11.git-rm - Remove files from the working tree and from the index
+$ git rm
+
+12.git-mv - Move or rename a file, a directory, or a symlink
+$ git mv
+
+13.log
+显示commitlog
+$ git log
+
+显示commitlog和代码改变
+$ git log -p
+
+14.git show显示信息
+$ git show version
+
+15.git reset 取消，恢复
+	1).只取消REPO的commit，保留index和workingTree的变更,恢复版本到version
+	$ git reset --soft version
+
+	2).取消REPO和index的commit，workingTree的变更,恢复版本到version
+	$ git reset --hard version
+
+	3).删除index中的一个文件
+	$ git reset --filename
+
+	4).取消最近一次的REPO和index的commit，保留workingTree的变更
+	$ git reset --mixed
+	$ git reset
+
+16.图形化界面
+$ gitk
+
+
+====================================================
+分割线
+====================================================
+原理
+git维护的代码分成三部分，“当前工作目录 workingTree”<->“index file”<->git仓库 REPO。
+git commit会将index file中的改变写到git仓库；
+git add会将“当前工作目录”的改变写到“index file”；
+“commit -a”则会直接将“当前工作目录”的改动同时写到“index file”和“git仓库”。
+
+将 Current working tree 记为 (1)
+将 Index file 记为 (2)
+将 Git repository 记为 (3)
+
+他们之间的提交层次关系是 (1) -> (2) -> (3)
+git add完成的是(1) -> (2)
+git commit完成的是(2) -> (3)
+git commit -a两者的直接结合
+
+从时间上看，可以认为(1)是最新的代码，(2)比较旧，(3)更旧
+按时间排序就是 (1) <- (2) <- (3)
+
+git diff得到的是从(2)到(1)的变化
+git diff –cached得到的是从(3)到(2)的变化
+git diff HEAD得到的是从(3)到(1)的变化
+
+
+====================================================
+分割线
+====================================================
+
+HEAD：表示最近一次的commit。
+
+MERGE_HEAD：如果是merge产生的commit，那么它表示除HEAD之外的另一个父母分支。
+
+FETCH_HEAD：使用git-fetch获得的object和ref的信息都存储在这里，这些信息是为日后git-merge准备的。
+
+HEAD^：表示HEAD父母的信息
+
+HEAD^^：表示HEAD父母的父母的信息
+
+HEAD~4：表示HEAD上溯四代的信息
+
+HEAD^1：表示HEAD的第一个父母的信息
+
+HEAD^2：表示HEAD的第二个父母的信息
+
+COMMIT_EDITMSG：最后一次commit时的提交信息。
+
+====================================================
+分割线
+====================================================
+git init # 將當前資料夾進行 Git 初始化
+ 
+git add . # 將當前資料夾內所有檔案加入 Git 追蹤（tracking 或 staging）
+git add 檔案名稱 # 把當前資料夾內某個檔案加入 Git 追蹤（tracking 或 staging）
+ 
+git commit -a # 將目前的變動送繳 Git 進行紀錄，會進入編寫修改訊息的畫面
+git commit -a -m "*" # commit 時直接寫入修改訊息，不進入編寫修改訊息的畫面
+ 
+git tag v1.0 # 將當前 commit 過後的檔案版本命名為 v1.0
+ 
+git status # 查詢從上一次 commit 到現在，資料夾裡有哪些變化，各個檔案處於什麼狀況
+ 
+git diff # 比較所有檔案的內容與上一次 commit 時有何差異
+git diff v1.0 v2.0 # 比較 v1.0 與 v2.0 兩個版本間所有檔案的內容
+git diff v1.0:檔案名稱 v2.0:檔案名稱 # 比較 v1.0 與 v2.0 兩個版本間某個檔案的內容
+ 
+git log # 查詢所有版本的修改狀況，顯示各版本的 hash 編號
+git log -p # 查詢哪幾行被修改
+git log --stat --summary # 查詢每個版本間變動的檔案跟行數
+ 
+git show v1.0 # 查詢 v1.0 版裡的修改內容
+git show v1.0:檔案名稱 # 查詢某個檔案在 v1.0 時的內容
+ 
+git show HEAD # 看此版本修改的資料
+git show HEAD^ # 看此版本前一版的修改的資料
+git show HEAD^^ # 看此版本前前一版的修改的資料
+ 
+git grep "*" v1.0 # 查詢 0.01 版裡頭有沒有某些內容
+git grep "*" # 查詢現在的版本裡有沒有某些內容
+ 
+git branch # 查看現有的分支
+git branch 分支名稱 # 建立新的分支
+git branch 分支名稱 v1.0 # 依照 v1.0 版本裡的內容來建立一個分支
+git branch -d 分支名稱 # 刪除某個分支
+ 
+git merge 某個分支名稱 # 將當前所在的分支與某個分支合併，如果出現衝突，會紀錄在有衝突的檔案中
+ 
+git checkout master # 切換到主幹上
+git checkout 分支名稱 # 切換到某個分支上
+ 
+git checkout HEAD # 將所有檔案恢復到上次 commit 的狀態
+git checkout -- 檔案名稱 # 將某個檔案恢復到上次 commit 的狀態
+ 
+git reset --hard 某個版本的 hash 編號 # 整個 Repository 恢復到某個版本的狀態
+ 
+git count-objects # 分析 Git 資料庫狀況，計算鬆散的物件
+git gc # 維護 Git 資料庫，重組物件
+git fsck --full # 應該是類似 Git 磁碟重組之類的東西
+
+

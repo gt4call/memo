@@ -1,0 +1,45 @@
+﻿YUM
+
+========================================
+Another app is currently holding the yum lock; waiting for it to exit...
+  The other application is: yum
+    Memory :  38 M RSS ( 37 MB VSZ)
+    Started:Sta Jul 24 16:28:58 2010 - 1:37:07 ago
+    State  : Sleeping, pid: 13020
+========================================
+# rm -f /var/run/yum.pid
+
+========================================
+== list the package info
+========================================
+# yum list [available|installed|extras|updates|obsoletes|all|recent] [pkgspec] 
+
+
+========================================
+== list the package info that need update
+========================================
+# yum check-update
+
+========================================
+== install remove & update
+========================================
+# yum yum install/remove/update
+
+========================================
+== display the package info
+========================================
+# yum info xxx
+
+
+========================================
+== search the package
+========================================
+# yum search xxx
+
+
+========================================
+== yum clean
+========================================
+# yum clean [packages|metadata|all]
+
+

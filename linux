@@ -56,13 +56,15 @@ linux
 
 -r : Read all files under each directory
 
--l : print file only
+-l : print file only（只输出文件名）
 
 example:
 
 grep -i -r 'camera' *
+找出包括子文件，含有camera的不区分大小写的文件内容
 
 grep '\.c\>' camera_filelist_1 > all_c
+在文件camera_filelist_1中，找出以.c结尾的行
 
 ^
 锚定行的开始 如：'^grep'匹配所有以grep开头的行。
@@ -90,6 +92,26 @@ x\{m,n\}
 \w
 匹配文字和数字字符，也就是[A-Za-z0-9]，如：'G\w*p'匹配以G后跟零个或多个文字或数字字符，然后是p。
 
+
+
+
+
+
+========================================
+== wc
+========================================
+wc [-clw][--help][--version][文件...] 
+-c或--bytes或--chars   只显示Bytes数。 
+-l或--lines   只显示列数。 
+-w或--words   只显示字数。 
+    
+文件行数
+wc -l filename
+
+
+========================================
+== wc
+========================================
 
 
 
